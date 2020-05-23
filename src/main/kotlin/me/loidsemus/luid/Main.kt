@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.entities.Activity
 
-fun main(args: Array<String>) {
+fun main() {
 
     val commandClient = CommandClientBuilder().apply {
         setOwnerId("219846009864454146")
@@ -15,7 +15,7 @@ fun main(args: Array<String>) {
         addCommands(PingCommand())
     }.build()
 
-    val jda: JDA = JDABuilder.createDefault(System.getenv("luid_token"))
+    JDABuilder.createDefault(System.getenv("luid_token"))
         .addEventListeners(commandClient)
         .build()
 }
