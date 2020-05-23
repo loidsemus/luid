@@ -2,9 +2,6 @@
 
 package me.loidsemus.luid
 
-import co.aikar.idb.DB
-import co.aikar.idb.DatabaseOptions
-import co.aikar.idb.PooledDatabaseOptions
 import com.jagrosh.jdautilities.command.CommandClientBuilder
 import me.loidsemus.luid.commands.`fun`.RedditCommand
 import me.loidsemus.luid.commands.misc.EchoCommand
@@ -19,7 +16,7 @@ import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.entities.Activity
 
 fun main() {
-    initDb()
+    //initDb()
     val redditClient = initReddit()
     val commandClient = CommandClientBuilder().apply {
         setOwnerId("219846009864454146")
@@ -36,11 +33,11 @@ fun main() {
         .build()
 }
 
-fun initDb() {
+/*fun initDb() {
     val options = DatabaseOptions.builder().sqlite("data.db").build()
     val db = PooledDatabaseOptions.builder().options(options).createHikariDatabase()
     DB.setGlobalDatabase(db)
-}
+}*/
 
 fun initReddit(): RedditClient {
     val credentials = Credentials.script(
