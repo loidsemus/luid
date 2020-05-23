@@ -17,7 +17,7 @@ class PingCommand : Command() {
     override fun execute(event: CommandEvent) {
         event.reply("Ping: ...") {
             val ping = event.message.timeCreated.until(it.timeCreated, ChronoUnit.MILLIS)
-            it.editMessage("Ping: ${ping}ms total (${event.jda.gatewayPing}ms is Discord's fault)").queue()
+            it.editMessage("Ping: ${ping}ms total (${event.jda.gatewayPing}ms gateway)").queue()
         }
     }
 }
