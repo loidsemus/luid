@@ -1,4 +1,4 @@
-package me.loidsemus.luid.commands
+package me.loidsemus.luid.commands.util
 
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
@@ -10,13 +10,14 @@ class PingCommand : Command() {
         with(this) {
             name = "ping"
             help = "Ping pong"
+            aliases = arrayOf("latency")
         }
     }
 
     override fun execute(event: CommandEvent) {
         event.reply("Ping: ...") {
             val ping = event.message.timeCreated.until(it.timeCreated, ChronoUnit.MILLIS)
-            it.editMessage("Ping: ${ping}ms | ${event.jda.gatewayPing}ms").queue()
+            it.editMessage("Ping: ${ping}ms total (${event.jda.gatewayPing}ms gateway)").queue()
         }
     }
 }

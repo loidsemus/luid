@@ -1,4 +1,4 @@
-package me.loidsemus.luid.commands
+package me.loidsemus.luid.commands.`fun`
 
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
