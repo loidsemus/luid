@@ -24,6 +24,8 @@ dependencies {
     implementation("co.aikar:idb-core:1.0.0-SNAPSHOT")
     implementation("com.zaxxer:HikariCP:3.4.5")
     implementation("org.xerial:sqlite-jdbc:3.31.1")
+    // For time command
+    implementation("com.google.maps:google-maps-services:0.13.0")
 }
 
 tasks {

@@ -6,9 +6,10 @@ import co.aikar.idb.DB
 import co.aikar.idb.DatabaseOptions
 import co.aikar.idb.PooledDatabaseOptions
 import com.jagrosh.jdautilities.command.CommandClientBuilder
+import me.loidsemus.luid.commands.`fun`.RedditCommand
 import me.loidsemus.luid.commands.misc.EchoCommand
 import me.loidsemus.luid.commands.util.PingCommand
-import me.loidsemus.luid.commands.`fun`.RedditCommand
+import me.loidsemus.luid.commands.util.TimeCommand
 import net.dean.jraw.RedditClient
 import net.dean.jraw.http.OkHttpNetworkAdapter
 import net.dean.jraw.http.UserAgent
@@ -26,7 +27,7 @@ fun main() {
         setActivity(Activity.watching("you"))
         addCommands(
             PingCommand(), RedditCommand(redditClient),
-            EchoCommand()
+            EchoCommand(), TimeCommand()
         )
     }.build()
 
