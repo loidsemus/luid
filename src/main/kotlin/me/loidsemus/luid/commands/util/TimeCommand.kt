@@ -17,17 +17,15 @@ class TimeCommand : Command() {
     private val context: GeoApiContext
 
     init {
-        context = GeoApiContext.Builder()
-            .apiKey(apiKey)
-            .build()
-    }
-
-    init {
         with(this) {
             name = "time"
             help = "Check time in some timezone"
             aliases = arrayOf("timezone", "tz")
         }
+
+        context = GeoApiContext.Builder()
+            .apiKey(apiKey)
+            .build()
     }
 
     override fun execute(event: CommandEvent) {
