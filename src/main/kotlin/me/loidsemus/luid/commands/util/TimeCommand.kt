@@ -40,7 +40,7 @@ class TimeCommand : Command() {
                 object : PendingResult.Callback<Array<GeocodingResult>> {
                     override fun onFailure(e: Throwable) {
                         if (e is ZeroResultsException) {
-                            it.editMessage("No results for \"${event.args}\"")
+                            it.editMessage("No results for \"${event.args}\"").queue()
                             return
                         }
                         it.editMessage("Error").queue()
@@ -59,6 +59,13 @@ class TimeCommand : Command() {
                         TimeZoneApi.getTimeZone(context, geocodingResult.geometry.location).setCallback(
                             object : PendingResult.Callback<TimeZone> {
                                 override fun onFailure(e: Throwable) {
+                                    if (e is ZeroResultsException) {
+                                        it.editMessage(
+                                            "Couldn't find timezone for " +
+                                                    geocodingResult.formattedAddress
+                                        ).queue()
+                                        return
+                                    }
                                     it.editMessage("Error").queue()
                                     e.printStackTrace()
                                 }
