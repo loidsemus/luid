@@ -1,9 +1,8 @@
-@file:JvmName("Main")
-
 package me.loidsemus.luid
 
 import com.jagrosh.jdautilities.command.CommandClientBuilder
 import me.loidsemus.luid.commands.`fun`.RedditCommand
+import me.loidsemus.luid.commands.`fun`.UDCommand
 import me.loidsemus.luid.commands.misc.EchoCommand
 import me.loidsemus.luid.commands.util.PingCommand
 import me.loidsemus.luid.commands.util.TimeCommand
@@ -24,7 +23,7 @@ fun main() {
         setActivity(Activity.watching("you"))
         addCommands(
             PingCommand(), RedditCommand(redditClient),
-            EchoCommand(), TimeCommand()
+            EchoCommand(), TimeCommand(), UDCommand()
         )
     }.build()
 
