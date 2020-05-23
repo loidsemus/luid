@@ -4,6 +4,7 @@ import com.google.maps.GeoApiContext
 import com.google.maps.GeocodingApi
 import com.google.maps.PendingResult
 import com.google.maps.TimeZoneApi
+import com.google.maps.errors.ZeroResultsException
 import com.google.maps.model.GeocodingResult
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
@@ -38,6 +39,10 @@ class TimeCommand : Command() {
             GeocodingApi.geocode(context, event.args).setCallback(
                 object : PendingResult.Callback<Array<GeocodingResult>> {
                     override fun onFailure(e: Throwable) {
+                        if (e is ZeroResultsException) {
+                            it.editMessage("No results for \"${event.args}\"")
+                            return
+                        }
                         it.editMessage("Error").queue()
                         e.printStackTrace()
                     }
