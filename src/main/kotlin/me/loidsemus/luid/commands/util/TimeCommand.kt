@@ -13,7 +13,6 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.CompletionException
 
 class TimeCommand : Command() {
 
@@ -42,22 +41,24 @@ class TimeCommand : Command() {
             val builder = StringBuilder()
 
             geocode(event.args).thenCompose {
+                println("thenCompose: $it")
                 builder.append("**Time in ${it.formattedAddress}")
                 timezone(it.geometry.location)
-            }.handle { timezone: TimeZone?, throwable: Throwable? ->
-                if (timezone != null) {
-                    builder.append(" (${timezone.displayName})**")
-                        .append("\n")
-                        .append(getCurrentTimeFormatted(timezone))
+            }.thenAccept {
+                println("thenAccept: $it")
+                builder.append(" (${it.displayName})**")
+                    .append("\n")
+                    .append(getCurrentTimeFormatted(it))
 
-                    message.editMessage(builder.toString()).queue()
+                message.editMessage(builder.toString()).queue()
+            }.exceptionally {
+                println("exceptionally: $it")
+                if (it.cause is ZeroResultsException) {
+                    message.editMessage("No locations found for ${event.args}").queue()
                 } else {
-                    if (throwable != null && throwable is CompletionException && throwable.cause is ZeroResultsException) {
-                        message.editMessage("No locations found for ${event.args}").queue()
-                    } else {
-                        message.editMessage("Unknown error").queue()
-                    }
+                    message.editMessage("Unknown error").queue()
                 }
+                null
             }
         }
 
