@@ -41,18 +41,15 @@ class TimeCommand : Command() {
             val builder = StringBuilder()
 
             geocode(event.args).thenCompose {
-                println("thenCompose: $it")
                 builder.append("**Time in ${it.formattedAddress}")
                 timezone(it.geometry.location)
             }.thenAccept {
-                println("thenAccept: $it")
                 builder.append(" (${it.displayName})**")
                     .append("\n")
                     .append(getCurrentTimeFormatted(it))
 
                 message.editMessage(builder.toString()).queue()
             }.exceptionally {
-                println("exceptionally: $it")
                 if (it.cause is ZeroResultsException) {
                     message.editMessage("No locations found for ${event.args}").queue()
                 } else {
