@@ -6,11 +6,14 @@ import com.google.maps.PendingResult
 import com.google.maps.TimeZoneApi
 import com.google.maps.errors.ZeroResultsException
 import com.google.maps.model.GeocodingResult
+import com.google.maps.model.LatLng
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CompletionException
 
 class TimeCommand : Command() {
 
@@ -35,55 +38,67 @@ class TimeCommand : Command() {
             return
         }
 
-        event.reply("Getting location...") {
-            GeocodingApi.geocode(context, event.args).setCallback(
-                object : PendingResult.Callback<Array<GeocodingResult>> {
-                    override fun onFailure(e: Throwable) {
-                        if (e is ZeroResultsException) {
-                            it.editMessage("No results for \"${event.args}\"").queue()
-                            return
-                        }
-                        it.editMessage("Error").queue()
-                        e.printStackTrace()
-                    }
+        event.reply("Getting location...") { message ->
+            val builder = StringBuilder()
 
-                    override fun onResult(result: Array<GeocodingResult>) {
-                        if (result.isEmpty()) {
-                            it.editMessage("Invalid location: ${event.args}").queue()
-                            return
-                        }
+            geocode(event.args).thenCompose {
+                builder.append("**Time in ${it.formattedAddress}")
+                timezone(it.geometry.location)
+            }.handle { timezone: TimeZone?, throwable: Throwable? ->
+                if (timezone != null) {
+                    builder.append(" (${timezone.displayName})**")
+                        .append("\n")
+                        .append(getCurrentTimeFormatted(timezone))
 
-                        it.editMessage("Getting timezone...").queue()
-
-                        val geocodingResult = result[0]
-                        TimeZoneApi.getTimeZone(context, geocodingResult.geometry.location).setCallback(
-                            object : PendingResult.Callback<TimeZone> {
-                                override fun onFailure(e: Throwable) {
-                                    if (e is ZeroResultsException) {
-                                        it.editMessage(
-                                            "Couldn't find timezone for " +
-                                                    geocodingResult.formattedAddress
-                                        ).queue()
-                                        return
-                                    }
-                                    it.editMessage("Error").queue()
-                                    e.printStackTrace()
-                                }
-
-                                override fun onResult(result: TimeZone) {
-                                    it.editMessage(
-                                        "**Time in ${geocodingResult.formattedAddress} " +
-                                                "(${result.getDisplayName(Locale.ENGLISH)})**\n" +
-                                                getCurrentTimeFormatted(result)
-                                    ).queue()
-                                }
-                            }
-                        )
+                    message.editMessage(builder.toString()).queue()
+                } else {
+                    if (throwable != null && throwable is CompletionException && throwable.cause is ZeroResultsException) {
+                        message.editMessage("No locations found for ${event.args}").queue()
+                    } else {
+                        message.editMessage("Unknown error").queue()
                     }
                 }
-            )
+            }
         }
 
+    }
+
+    private fun geocode(input: String): CompletableFuture<GeocodingResult> {
+        val future = CompletableFuture<GeocodingResult>()
+
+        GeocodingApi.geocode(context, input).setCallback(
+            object : PendingResult.Callback<Array<GeocodingResult>> {
+                override fun onFailure(e: Throwable) {
+                    future.completeExceptionally(e)
+                }
+
+                override fun onResult(result: Array<GeocodingResult>) {
+                    if (result.isNullOrEmpty()) {
+                        future.completeExceptionally(ZeroResultsException("No locations found for $input"))
+                        return
+                    }
+                    future.complete(result[0])
+                }
+            })
+        return future
+    }
+
+    private fun timezone(location: LatLng): CompletableFuture<TimeZone> {
+        val future = CompletableFuture<TimeZone>()
+
+        TimeZoneApi.getTimeZone(context, location).setCallback(
+            object : PendingResult.Callback<TimeZone> {
+                override fun onFailure(e: Throwable) {
+                    future.completeExceptionally(e)
+                }
+
+                override fun onResult(result: TimeZone) {
+                    future.complete(result)
+                }
+            }
+        )
+
+        return future
     }
 
     private fun getCurrentTimeFormatted(timeZone: TimeZone): String {
