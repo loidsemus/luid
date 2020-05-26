@@ -41,6 +41,7 @@ class TimeCommand : Command() {
             val builder = StringBuilder()
 
             geocode(event.args).thenCompose {
+                message.editMessage("Getting timezone...").queue()
                 builder.append("**Time in ${it.formattedAddress}")
                 timezone(it.geometry.location)
             }.thenAccept {
